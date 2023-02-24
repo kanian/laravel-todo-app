@@ -1,0 +1,67 @@
+version: '3'
+services:
+
+  #PHP Service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: 9labs_test/php8-fpm
+    container_name: todo-app
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    working_dir: /var/www/html
+    volumes:
+       - ./:/var/www/html
+       - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - todo-app-network
+
+  #Nginx Service
+  webserver:
+    image: nginx:alpine
+    container_name: todo-webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./:/var/www/html
+      - ./nginx/:/etc/nginx/conf.d/
+    networks:
+      - todo-app-network
+
+  #MySQL Service
+  db:
+    image: mysql:5.7.22
+    container_name: todo-db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "${DB_PORT}:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      - todo-app-network
+
+#Docker Networks
+networks:
+  todo-app-network:
+    driver: bridge
+
+#Volumes
+volumes:
+  dbdata:
+    driver: local
