@@ -15,7 +15,7 @@ jobs:
       uses: akhileshns/heroku-deploy@v3.12.12
       with:
         heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-        heroku_app_name: <app-name>
+        heroku_app_name: patrick-todo-app
     - name: Set up Docker Buildx
       id: buildx
       uses: docker/setup-buildx-action@v1
