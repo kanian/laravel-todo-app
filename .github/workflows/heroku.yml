@@ -1,0 +1,30 @@
+name: Deploy to Heroku
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Login to Heroku Registry
+        run: echo "$HEROKU_API_KEY" | docker login --username=_ --password-stdin registry.heroku.com
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: |
+            registry.heroku.com/patrick-todo-app/app
+            registry.heroku.com/patrick-todo-app/webserver
+            registry.heroku.com/patrick-todo-app/db
+
+
+      - name: Deploy to Heroku
+        run: heroku container:release app webserver db --app patrick-todo-app
