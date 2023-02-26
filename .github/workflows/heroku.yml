@@ -31,8 +31,8 @@ jobs:
       with:
         push: true
         tags:
-          app:latest
-          webserver:latest
+          app:latest,
+          webserver:latest,
           db:latest
         context: .
         file: ./docker-compose.yml
